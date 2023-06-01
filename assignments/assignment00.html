@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Input Form</title>
+  <style>
+    label, input, span {
+      font-family: "Courier New", monospace;
+    }
+label {
+  display: inline-block;
+  width: 150px;
+}
+input[type="text"] {
+  width: 300px;
+}
+.message {
+      font-family: "Courier New", monospace;
+      color: green;
+      margin-left: 10px;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
+</head>
+<body>
+  <form>
+    
+    <label for="input01">amazon.com</label>
+    <input type="text" id="input01" name="input01">
+    <span class="message" id="message01"></span><br>
+
+    <label for="input02">boa.com</label>
+    <input type="text" id="input02" name="input02">
+    <span class="message" id="message02"></span><br>
+
+    <label for="input03">chase.com</label>
+    <input type="text" id="input03" name="input03">
+    <span class="message" id="message03"></span><br>
+
+    <label for="input04">discord.com</label>
+    <input type="text" id="input04" name="input04">
+    <span class="message" id="message04"></span><br>
+
+    <label for="input05">etsy.com</label>
+    <input type="text" id="input05" name="input05">
+    <span class="message" id="message05"></span><br>
+
+    <label for="input06">facebook.com</label>
+    <input type="text" id="input06" name="input06">
+    <span class="message" id="message06"></span><br>
+
+    <label for="input07">gmail.com</label>
+    <input type="text" id="input07" name="input07">
+    <span class="message" id="message07"></span><br>
+
+    <label for="input08">hilton.com</label>
+    <input type="text" id="input08" name="input08">
+    <span class="message" id="message08"></span><br>
+
+    <label for="input09">icq.com</label>
+    <input type="text" id="input09" name="input09">
+    <span class="message" id="message09"></span><br>
+
+    <label for="input10">jcrew.com</label>
+    <input type="text" id="input10" name="input10">
+    <span class="message" id="message10"></span><br>
+
+    <!-- Rest of the labels and input fields -->
+    <br>
+    <input type="submit" value="Submit" id="submitButton">
+    <input type="button" value="Refresh" id="refreshButton">
+  </form>
+
+  <script>
+    // Function to calculate MD5 hash
+    function calculateHash(inputValue) {
+      return CryptoJS.MD5(inputValue).toString();
+    }
+
+    // Add event listener to the submit button
+    document.getElementById('submitButton').addEventListener('click', function(event) {
+      event.preventDefault(); // Prevent form submission
+
+      // Initialize an array to store the input values
+      let inputValues = [];
+
+      // Loop through the input boxes
+      for (let i = 1; i <= 10; i++) {
+        const inputId = 'input' + ('0' + i).slice(-2); // Generate the input ID
+        const messageId = 'message' + ('0' + i).slice(-2); // Generate the message ID
+
+        const inputValue = document.getElementById(inputId).value; // Get the input value
+        const hashedValue = calculateHash(inputValue); // Calculate the MD5 hash
+
+        document.getElementById(messageId).textContent = '' + hashedValue; // Set the message
+
+        inputValues.push(inputValue); // Store the input value in the array
+      }
+
+      // Save the input values array in local storage
+      localStorage.setItem('inputValues', JSON.stringify(inputValues));
+    });
+
+    // Add event listener to the refresh button
+    document.getElementById('refreshButton').addEventListener('click', function() {
+      // Retrieve the input values array from local storage
+      const inputValues = JSON.parse(localStorage.getItem('inputValues'));
+
+      // Loop through the input boxes
+      for (let i = 1; i <= 10; i++) {
+        const inputId = 'input' + ('0' + i).slice(-2); // Generate the input ID
+        const messageId = 'message' + ('0' + i).slice(-2); // Generate the message ID
+
+        // Check if the corresponding input value exists in the array
+        if (inputValues && inputValues[i - 1]) {
+          document.getElementById(inputId).value = inputValues[i - 1]; // Set the input value
+        } else {
+          document.getElementById(inputId).value = ''; // Clear the input value
+        }
+
+        document.getElementById(messageId).textContent = ''; // Clear the message
+      }
+    });
+  </script>
+</body>
+</html>
