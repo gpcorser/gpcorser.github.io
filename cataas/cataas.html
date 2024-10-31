@@ -1,0 +1,35 @@
+    <div id="cat"> </div >
+
+    <style>
+    #cat {
+    display : flex ;
+    justify-content : center ;
+    align-items : center ;
+    height : 100 vh ; /* Center vertically */
+    }
+    #cat img {
+    max-width : 50 vw ; /* Maximum width is 50% of the viewport width */
+    max-height : 50 vh ; /* Maximum height is 50% of the viewport height */
+    width: auto ; /* Maintain aspect ratio */
+    height: auto ; /* Maintain aspect ratio */
+    }
+    </style >
+
+    <script>
+    function fetchCatImage () {
+    xhr = new XMLHttpRequest () ;
+    xhr . open ("GET", " https://cataas.com/cat", true ) ;
+    xhr . responseType = "blob"; // Ensure the response is an image
+    xhr . onload = function () {
+    if ( xhr . status === 200) {
+    const imgURL = URL . createObjectURL ( xhr . response ) ;
+    const catDiv = document . getElementById ("cat") ;
+    catDiv . innerHTML = `<img src ="${ imgURL }" alt=" Random Cat Image " / >`;
+    } else {
+    console . error (" Failed to load cat image .") ;
+    }
+    };
+    xhr . send () ;
+    }
+    window . onload = fetchCatImage ;
+    </script>
