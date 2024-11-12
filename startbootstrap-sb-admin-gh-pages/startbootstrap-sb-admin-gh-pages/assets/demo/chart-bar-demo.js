@@ -2,17 +2,26 @@
 Chart.defaults.global.defaultFontFamily = '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
 Chart.defaults.global.defaultFontColor = '#292b2c';
 
+var myAmount = 3000
 // Bar Chart Example
 var ctx = document.getElementById("myBarChart");
 var myLineChart = new Chart(ctx, {
   type: 'bar',
   data: {
-    labels: ["January", "February", "March", "April", "May", "June"],
+    labels: ["January", "February", "FLUFFY", "April", "May", "June"],
     datasets: [{
       label: "Revenue",
-      backgroundColor: "rgba(2,117,216,1)",
+      // backgroundColor: "rgba(2,117,216,1)",
+      backgroundColor: [
+        "rgba(2,117,216,1)", // January
+        "rgba(2,117,216,1)", // February
+        "rgba(255,99,132,1)", // FLUFFY (custom color)
+        "rgba(2,117,216,1)", // April
+        "rgba(2,117,216,1)", // May
+        "rgba(2,117,216,1)"  // June
+      ],
       borderColor: "rgba(2,117,216,1)",
-      data: [4215, 5312, 6251, 7841, 9821, 14984],
+      data: [4215, 5312, myAmount, 7841, 9821, 14984],
     }],
   },
   options: {
