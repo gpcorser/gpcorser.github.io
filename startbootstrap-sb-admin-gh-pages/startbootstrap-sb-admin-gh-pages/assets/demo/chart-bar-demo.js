@@ -2,15 +2,15 @@
 Chart.defaults.global.defaultFontFamily = '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
 Chart.defaults.global.defaultFontColor = '#292b2c';
 
-var myAmount = 3000
+var myAmount = 9
 // Bar Chart Example
 var ctx = document.getElementById("myBarChart");
 var myLineChart = new Chart(ctx, {
   type: 'bar',
   data: {
-    labels: ["January", "February", "FLUFFY", "April", "May", "June"],
+    labels: ["Cute", "Sad", "FLUFFY", "Orange", "Sleepy", "Blanket"],
     datasets: [{
-      label: "Revenue",
+      label: "Number of Cats",
       // backgroundColor: "rgba(2,117,216,1)",
       backgroundColor: [
         "rgba(2,117,216,1)", // January
@@ -21,14 +21,14 @@ var myLineChart = new Chart(ctx, {
         "rgba(2,117,216,1)"  // June
       ],
       borderColor: "rgba(2,117,216,1)",
-      data: [4215, 5312, myAmount, 7841, 9821, 14984],
+      data: [7, 10, myAmount, 12, 3, 6],
     }],
   },
   options: {
     scales: {
       xAxes: [{
         time: {
-          unit: 'month'
+          unit: 'type'
         },
         gridLines: {
           display: false
@@ -40,7 +40,7 @@ var myLineChart = new Chart(ctx, {
       yAxes: [{
         ticks: {
           min: 0,
-          max: 15000,
+          max: 15,
           maxTicksLimit: 5
         },
         gridLines: {
