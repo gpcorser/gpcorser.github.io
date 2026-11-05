@@ -1,0 +1,41 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Universal Turing Machine · CS 461</title>
+<style>body{font:17px/1.6 system-ui,sans-serif;background:#f3f5f8;color:#17283b;margin:0}main{max-width:1100px;margin:auto;padding:32px 22px}h1{line-height:1.15}section{background:white;border:1px solid #d5dce5;border-radius:12px;padding:22px;margin:20px 0}textarea{width:100%;box-sizing:border-box;min-height:220px;font:15px/1.6 monospace;padding:12px}button,input{font:inherit;padding:8px;margin:5px;border:1px solid #8c9bac;border-radius:5px}button{cursor:pointer;background:#e8eff7}button:focus-visible,textarea:focus-visible{outline:3px solid #007b96}pre{overflow:auto;background:#eef2f7;padding:12px;font-size:14px}#status{font-weight:700}small{color:#526275}summary{cursor:pointer;font-weight:bold}</style>
+<main><small>CS 461 / COMPUTABILITY LAB</small><h1>A machine that reads a machine.</h1><details id="notation-help">
+<summary>Load a seven-tuple and a word. Watch a fixed five-tape universal Turing machine interpret its encoding.</summary>
+<p>The input describes a Turing machine <strong>M</strong> and the word <strong>w</strong> you want it to process. Enter the machine’s seven-tuple, followed by a comma and the word:</p>
+<pre>(Q, Σ, Γ, δ, q0, qaccept, qreject),w</pre>
+<ul>
+<li><strong>Q:</strong> the finite set of states, such as <code>{q0,q1,qa,qr}</code>.</li>
+<li><strong>Σ (Sigma):</strong> the input alphabet, such as <code>{0,1}</code>. It excludes the blank symbol.</li>
+<li><strong>Γ (Gamma):</strong> the tape alphabet, such as <code>{0,1,_}</code>. It includes the input alphabet, the blank symbol, and any working symbols.</li>
+<li><strong>δ (delta):</strong> the transition function, entered here as a set of input–output pairs.</li>
+<li><strong>q0:</strong> the start state.</li>
+<li><strong>qaccept:</strong> the accept state, named <code>qa</code> in the example.</li>
+<li><strong>qreject:</strong> the reject state, named <code>qr</code> in the example.</li>
+</ul>
+<h2>Reading a transition</h2>
+<p>Sipser’s transition function has the form <code>δ: Q × Γ → Q × Γ × {L,R}</code>. It takes a state and a tape symbol and returns a new state, a symbol to write, and a direction.</p>
+<pre>δ(q0,1) = (q1,1,R)</pre>
+<p>This means: while in state <code>q0</code>, if the head reads <code>1</code>, enter <code>q1</code>, write <code>1</code>, and move one cell right.</p>
+<p>In this textbox, write the same rule as:</p>
+<pre>((q0,1),(q1,1,R))</pre>
+<p>The outer ordered pair contains an <strong>input pair</strong> <code>(q0,1)</code> and an <strong>output triple</strong> <code>(q1,1,R)</code>. The surrounding braces collect all these rules into a set. This nested-pair syntax is the application’s text encoding of the function; Sipser’s Section 3.1, Definition 3.3 supplies the mathematical transition-function definition.</p>
+<h2>Blank symbols and the input word</h2>
+<p><strong><code>_</code> means a blank tape symbol, not a space character.</strong> It is an easy-to-type substitute for Sipser’s <code>⊔</code>. For example, <code>((q0,_),(qr,_,R))</code> means: in state <code>q0</code>, read a blank, write a blank, move right, and enter <code>qr</code>.</p>
+<p>Write only the word after the tuple, for example <code>...,q0,qa,qr),11011</code>. The remaining tape cells are automatically blank; do not append blank markers. Use <code>eps</code> for the empty word. Spaces and line breaks in the description are formatting, not tape symbols.</p>
+<p>The example machine accepts binary strings ending in <code>1</code>, so <code>11011</code> is accepted. Changing the word to <code>11010</code> produces rejection.</p>
+</details>
+<section><label for="source"><strong>Machine M and input w</strong></label><textarea id="source" spellcheck="false"></textarea><p><code>(Q, Σ, Γ, δ, q0, qaccept, qreject),w</code><br>Transition: <code>((q0,0),(q1,1,R))</code>. Blank: <code>_</code>, <code>□</code>, or <code>&lt;blank&gt;</code>. Empty word: <code>eps</code>.</p><button id="example">Load example</button><button id="load">Initialize U</button></section>
+<section><button id="step">One U step</button><button id="macro">One M step</button><button id="run">Run</button><button id="pause">Pause</button><label>Run budget <input id="limit" type="number" value="100000" min="1" max="10000000" step="1000"></label><p id="status" role="status" aria-live="polite">Ready</p><small id="counts"></small><div id="tapes"></div></section>
+<section><details><summary>How this implementation works</summary><p>The front end validates Sipser-style set notation and encodes the finite description in unary over a fixed alphabet. Initially only Tape 1 is populated. U initializes its other tapes and scans the encoded rules. Its finite control never reads the JavaScript representation of M.</p><p>Tapes 4 and 5 are stacks representing the cells left and right of the simulated head. Tape 3 contains the current symbol. A left move at the leftmost simulated cell stays there. Symbols and ordinary states have positive unary codes; A and R encode the accept and reject states. The blank has code 1.</p><p>Every displayed U step is a current-cell branch, a write, a one-cell head movement, or a control transfer. These are multitape TM transitions with stationary moves allowed. U uses a finite, fixed control graph; changing M changes only the initial tape. Acceptance and rejection are distinct. A budget stop is inconclusive and can be resumed.</p><p>In this web demonstration the tapes grow as needed within available computer memory. The mathematical machine has unbounded tapes. There is no arbitrary limit of 26 simulated states.</p><button id="graph">Download U control graph</button><button id="encoding">Download initial tape</button></details></section></main>
+<script src="utm.js"></script><script>
+'use strict';const $=id=>document.getElementById(id);let u,active=false,generation=0;const names=['Encoded program and input','Simulated state','Current simulated symbol','Cells left of head (stack)','Cells right of head (stack)'];
+function render(message){$('status').textContent=message||u?.state||'Ready';$('counts').textContent=u?`U steps: ${u.steps.toLocaleString()} · M transitions: ${Math.max(0,u.simulatedSteps)} · U state: ${u.state}`:'';$('tapes').replaceChildren();if(u)names.forEach((name,t)=>{let b=document.createElement('strong');b.textContent=`Tape ${t+1}: ${name}`;let p=document.createElement('pre');p.textContent=u.window(t);$('tapes').append(b,p);});}
+function stop(){active=false;generation++;}
+function load(){stop();try{u=new UTMLab.UTM($('source').value);render('Initialized — Tape 1 contains encoded ⟨M,w⟩');}catch(e){u=null;render('INPUT ERROR: '+e.message);}}
+$('example').onclick=()=>{$('source').value=UTMLab.example;load();};$('load').onclick=load;$('pause').onclick=()=>{stop();render('Paused — no decision implied');};
+$('step').onclick=()=>{stop();if(u){u.step();render();}};
+function run(macro){if(!u)return;stop();let token=generation,remaining=Number($('limit').value);if(!Number.isSafeInteger(remaining)||remaining<1||remaining>10000000){render('Choose a budget from 1 to 10,000,000');return;}let target=Math.max(0,u.simulatedSteps)+1;active=true;function batch(){if(!active||token!==generation)return;let chunk=Math.min(1000,remaining);while(chunk-->0&&remaining>0){remaining--;if(!u.step()){stop();render();return;}if(macro&&u.simulatedSteps>=target){stop();render('Completed one simulated transition');return;}}render();if(!remaining){stop();render('INCONCLUSIVE — execution budget reached; Run resumes');}else setTimeout(batch,0);}batch();}
+$('run').onclick=()=>run(false);$('macro').onclick=()=>run(true);function download(name,text){let url=URL.createObjectURL(new Blob([text],{type:'text/plain'})),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+$('graph').onclick=()=>download('utm-control.json',JSON.stringify(UTMLab.CONTROL,null,2));$('encoding').onclick=()=>{if(u)download('initial-tape.txt',u.encoding.tape);};$('source').value=UTMLab.example;load();
+</script></html>

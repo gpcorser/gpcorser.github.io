@@ -1,0 +1,12 @@
+const assert=require('node:assert/strict'),{compare,tierCopay}=require('./scenario'),{defaults}=require('./engine');
+const people=[0,1].map(()=>({medical:0,visits:0,visitPrice:0,visitCopay:0,uncovered:0}));
+let r=compare(people,[0,0],[false,false]);
+r.selected.forEach((v,i)=>assert.ok(Math.abs(v.total-defaults[i].premium*12)<1e-6));
+r=compare(people,[0,0],[true,false]);assert.equal(r.selected[2].rx,480);assert.equal(r.selected[1].rx,4160);assert.equal(r.selected[0].rx,5180);
+let lower=compare(people,[0,0],[true,false],450);assert.ok(lower.selected[0].total<r.selected[0].total);
+let regular=compare(people,[100,0],[false,false]);assert.equal(regular.selected[2].rx,480);
+let withDrug=compare(people,[100,0],[true,false]);assert.equal(withDrug.selected[2].rx,960);assert.equal(withDrug.baseline[2].total,regular.selected[2].total);
+for(const [tier,expected] of [[1,10],[2,40],[3,80],[4,150],[5,300]])assert.equal(tierCopay(10000,tier),expected);
+assert.equal(tierCopay(5,2),5);
+let removed=compare(people,[100,0],[false,false]);assert.deepEqual(removed.selected,regular.selected);
+console.log('Passed: premium-only zeros, Mounjaro toggle on/off, separate regular and Mounjaro fills, $450/$500 scenarios, published tier amounts and caps.');

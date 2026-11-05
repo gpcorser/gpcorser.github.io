@@ -1,0 +1,112 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Simple Health Plan Comparison</title><style>
+:root{font-family:system-ui,sans-serif;color:#182c3c;background:#f3f6f8;line-height:1.5}*{box-sizing:border-box}body{margin:0}main{max-width:1200px;margin:auto;padding:28px 20px}header{margin-bottom:24px}h1{font-size:clamp(26px,4vw,40px);margin:4px 0}h2{font-size:22px;margin-top:0}h3{font-size:17px}p{max-width:85ch}.eyebrow{color:#23685d;letter-spacing:.1em;font-weight:700;font-size:13px}.panel{background:white;border:1px solid #dce4e9;border-radius:14px;padding:22px;margin:18px 0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px}label{display:flex;flex-direction:column;gap:4px;font-size:14px}input,select,button{font:inherit;padding:9px;border:1px solid #aebec9;border-radius:6px;max-width:100%}input[type=number]{width:125px}input[type=checkbox]{width:20px;height:20px}button{cursor:pointer;background:#eaf2f1;color:#144e45}button.primary{background:#176454;color:white;padding:12px 24px;font-weight:650}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #d58918;outline-offset:2px}.scroll{overflow:auto}table{border-collapse:collapse;width:100%;font-size:14px}th,td{text-align:left;padding:10px;border-bottom:1px solid #e0e6eb;vertical-align:top}th{background:#f6f9fa}td input{min-width:95px}.small{font-size:13px;color:#4a6172}.person,.drug{padding:14px 0;border-bottom:1px solid #e0e6eb}.bar{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}.legend{display:flex;gap:20px;flex-wrap:wrap}.dot{width:12px;height:12px;display:inline-block;margin-right:6px}.chart{width:100%;height:auto;min-height:250px}.winner{border-left:5px solid #176454;padding-left:16px}details summary{cursor:pointer;font-weight:650}#error{color:#a02525}svg text{font-family:system-ui,sans-serif;font-size:12px}#results[hidden]{display:none}@media print{form,button{display:none}.panel{break-inside:avoid}body{background:white}}
+</style><main><header><div class="eyebrow">2027 · SVSU / MESSA</div><h1>Three plans. Two ways to pay for Mounjaro.</h1><p>Enter a rough estimate for each person. We’ll handle the premiums, deductibles and spending limits. Leave a field blank or enter 0 for no regular spending. Person 1 is initially selected for Mounjaro; uncheck all Mounjaro boxes for premiums-only results when other inputs are zero.</p></header>
+<form id="form"><section class="panel"><h2>Who is covered?</h2><div id="people"></div><button type="button" id="addPerson">+ Add person</button></section>
+
+<section class="panel"><details><summary>Working prescription numbers (optional)</summary><p>Regular prescription amounts are treated as one monthly fill per person in the selected category. For several different medications, these are rough scenarios rather than exact copay totals. Always keep Mounjaro out of the regular prescription field. The checkbox identifies who takes it; every plan is compared using both payment routes.</p><div class="grid"><label>Regular prescription category<select id="regularTier"><option value="1">Generic — $10</option><option value="2" selected>Preferred brand — $40</option><option value="3">Nonpreferred brand — $80</option><option value="4">Preferred specialty — 20%, max $150</option><option value="5">Nonpreferred specialty — 20%, max $300</option></select></label></div><p>Each selected person receives Mounjaro in both routes. Insurance route: $1,464.54 per monthly fill before insurance, based on your reported price; assumed covered and credited toward ABC deductibles, followed by a $40 preferred-brand working copay. Direct route: $500 per month out of pocket, with no deductible or out-of-pocket-limit credit. Both routes include your normal medical and regular prescription spending. Your observed 2026 $25 payment is not assumed to carry over to 2027, and manufacturer assistance is not modeled.</p><p><a href="https://www.messa.org/5tierrx/" target="_blank" rel="noopener">MESSA five-tier payment schedule</a> · <a href="https://www.messa.org/pdf/5TierDruglist.pdf" target="_blank" rel="noopener">MESSA drug list (Mounjaro: preferred brand; step therapy and quantity limits)</a></p></details></section><button class="primary" type="submit">Compare plans</button><p id="error" role="alert"></p></form>
+<div id="results" hidden aria-live="polite"><section class="panel"><h2>Estimated cost for the year</h2><p id="winner" class="winner"></p><p class="small">Working scenario: regular prescriptions use the category shown below; Mounjaro uses preferred-brand coverage ($40 per monthly fill after coverage begins) for insured scenarios, or $500/month paid directly outside insurance. Coverage is assumed approved and subject to the ABC deductible. No manufacturer savings are applied.</p><p id="scenarioLabel"></p><div class="scroll"><table id="summary"></table></div><div id="mounjaroImpact"></div></section><section class="panel"><h2>What you pay each month</h2><p class="small">Premiums + prescriptions + medical expenses.</p><p class="small">Solid line: Mounjaro through insurance. Dashed line: Mounjaro purchased directly. Matching colors identify the same plan.</p><div class="legend"></div><svg id="monthly" class="chart" role="img" aria-label="Estimated monthly cost by plan"></svg></section><section class="panel"><h2>Total paid so far</h2><p class="small">Cumulative spending from January through December.</p><svg id="cumulative" class="chart" role="img" aria-label="Cumulative annual cost by plan"></svg></section></div>
+<section class="panel"><details><summary>What this rough estimate assumes</summary><p>Annual medical bills are spread evenly across 12 months. Use last year’s MESSA claims as a starting point: billed medical charges minus provider savings, excluding free preventive services. Do not enter just your deductible or personal payments. No visit counts are needed. Medical visit copays are omitted; medical care is modeled as deductible then 0% coinsurance. The regular prescription category defaults to preferred brand ($40) and can be changed under working numbers. Published monthly working amounts: generic $10; preferred brand $40; nonpreferred brand $80; preferred specialty 20% capped at $150; nonpreferred specialty 20% capped at $300. Copays cannot exceed the modeled remaining drug price. Insured Mounjaro is modeled as a separate Tier 2 fill for each checked person, with no preventive exemption or manufacturer assistance. Direct Mounjaro payments are added outside all insurance accumulators and limits. All coverage and requirements are assumed satisfied. Confirm your 2027 benefit before choosing a plan.</p><p>ABC prescriptions count toward the family deductible, then copays continue until the combined maximum. PPO prescriptions have immediate copays and separate $2,000-per-person / $4,000-family limits. ABC family calculations use the stated family combined ceiling. Free preventive prescriptions should be excluded from both prescription entries. Use this as a scenario comparison, not a prediction of exact claims.</p><p>Corrected monthly premiums: ABC 2.5 $133.60; ABC 2 $181.84; PPO $526.29. These quoted premiums are kept even if the person count changes; this is intended for your quoted coverage tier, not shopping different single/family premium tiers. No HSA contributions, tax adjustments, noncovered services or out-of-network bills are included. No information leaves your browser.</p></details></section></main><script>
+/* Calendar-year claim simulator. Monetary inputs are insurer-approved prices. */
+(function(root){
+'use strict';
+const defaults=[
+{name:'ABC 2.5',premium:133.60,dedSingle:2550,dedFamily:5100,medSingle:4550,medFamily:8700,rxSingle:0,rxFamily:0,combined:true,embedded:false,coins:0,hsa:0},
+{name:'ABC 2',premium:181.84,dedSingle:2000,dedFamily:4000,medSingle:4000,medFamily:8000,rxSingle:0,rxFamily:0,combined:true,embedded:false,coins:0,hsa:0},
+{name:'Choices PPO',premium:526.29,dedSingle:1000,dedFamily:2000,medSingle:2000,medFamily:4000,rxSingle:2000,rxFamily:4000,combined:false,embedded:true,coins:0,hsa:0}];
+function simulate(plan,people,drugs,schedule,order='medical'){
+ const family=people.length>1, n=people.length;
+ const s={ded:0,di:Array(n).fill(0),med:0,mi:Array(n).fill(0),rx:0,ri:Array(n).fill(0)};
+ const ded=family?plan.dedFamily:plan.dedSingle, medCap=family?plan.medFamily:plan.medSingle,rxCap=family?plan.rxFamily:plan.rxSingle;
+ const rows=[];
+ function pay(person,type,wanted){
+  const used=plan.combined?s.med+s.rx:s[type];
+  const cap=plan.combined?medCap:type==='med'?medCap:rxCap;
+  const individualUsed=plan.combined?s.mi[person]+s.ri[person]:type==='med'?s.mi[person]:s.ri[person];
+  // PPO individual ceilings are embedded. ABC summaries provide only the coverage-tier combined ceiling.
+  const icap=family&&!plan.combined?(type==='med'?plan.medSingle:plan.rxSingle):Infinity;
+  const paid=Math.max(0,Math.min(wanted,cap-used,icap-individualUsed));
+  s[type]+=paid;(type==='med'?s.mi:s.ri)[person]+=paid;return paid;
+ }
+ function claim(person,type,price,copay){
+  let total=0,remaining=price;
+  const subject=type==='med'||plan.combined;
+  if(subject){
+   const need=Math.max(0,Math.min(ded-s.ded,plan.embedded?plan.dedSingle-s.di[person]:Infinity));
+   const portion=Math.min(remaining,need),paid=pay(person,type,portion);
+   total+=paid;s.ded+=paid;s.di[person]+=paid;remaining-=portion;
+  }
+  if(remaining>0)total+=pay(person,type,type==='rx'?Math.min(copay,remaining):Math.min(remaining,copay+remaining*plan.coins/100));
+  return total;
+ }
+ for(let m=0;m<12;m++){
+  const beforeMed=s.med,beforeRx=s.rx;
+  const medical=()=>people.forEach((p,i)=>{
+   const factor=schedule[m].medical;
+   claim(i,'med',p.medical*factor,0);
+   for(let v=0;v<p.visits;v++)claim(i,'med',p.visitPrice*factor,plan.combined?0:p.visitCopay);
+   // Uncovered costs never reduce deductibles or ceilings.
+  });
+  const rx=()=>drugs.forEach(d=>{if(d.free[plan.name])return;claim(d.person,'rx',d.price*schedule[m].rx,d.copays[plan.name]);});
+  if(order==='rx'){rx();medical();}else{medical();rx();}
+  const excluded=people.reduce((t,p)=>t+p.uncovered,0);
+  const med=s.med-beforeMed,rxPaid=s.rx-beforeRx,total=plan.premium+med+rxPaid+excluded;
+  rows.push({month:m+1,premium:plan.premium,medical:med,rx:rxPaid,excluded,total,cumulative:total+(rows[m-1]?.cumulative||0)});
+ }
+ const sum=k=>rows.reduce((t,r)=>t+r[k],0);
+ return {name:plan.name,rows,premium:sum('premium'),medical:sum('medical'),rx:sum('rx'),excluded:sum('excluded'),total:sum('total'),hsa:plan.hsa,net:sum('total')-plan.hsa};
+}
+const api={defaults,simulate};if(typeof module!=='undefined')module.exports=api;else root.PlanEngine=api;
+})(typeof globalThis==='undefined'?this:globalThis);
+
+</script><script>
+/* Published MESSA five-tier working amounts. Drug category remains a scenario choice. */
+(function(root){
+const engine=typeof module!=='undefined'?require('./engine'):root.PlanEngine;
+function tierCopay(price,tier){return Math.min(price,tier===1?10:tier===2?40:tier===3?80:Math.min(price*.2,tier===4?150:300));}
+function compare(people,rxPrices,flags,mounjaroPrice=500,tier=2){
+ const schedule=Array.from({length:12},()=>({medical:1,rx:1}));
+ const regular=rxPrices.map((price,person)=>({person,price,copays:Object.fromEntries(engine.defaults.map(p=>[p.name,tierCopay(price,tier)])),free:{}}));
+ const added=flags.flatMap((checked,person)=>checked?[{person,price:mounjaroPrice,copays:Object.fromEntries(engine.defaults.map(p=>[p.name,tierCopay(mounjaroPrice,2)])),free:{}}]:[]);
+ const run=drugs=>engine.defaults.map(p=>engine.simulate(p,people,drugs,schedule));
+ return {baseline:run(regular),selected:run([...regular,...added])};
+}
+function six(people,rxPrices,flags,tier=2){
+ const outcome=compare(people,rxPrices,flags,1464.54,tier),count=flags.filter(Boolean).length;
+ return outcome.selected.flatMap((insured,i)=>{
+  const direct=structuredClone(outcome.baseline[i]);
+  direct.rows.forEach((r,m)=>{r.excluded+=500*count;r.total+=500*count;r.cumulative+=500*count*(m+1);});
+  direct.excluded+=6000*count;direct.total+=6000*count;direct.net+=6000*count;
+  insured.name+=' · Mounjaro insured';direct.name+=' · Mounjaro direct';
+  insured.route='Insurance';direct.route='Direct purchase';
+  return [insured,direct];
+ });
+}
+const api={compare,tierCopay,six};if(typeof module!=='undefined')module.exports=api;else root.PlanScenario=api;
+})(globalThis);
+
+</script><script>
+ 'use strict';
+const $=id=>document.getElementById(id),money=v=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(v),months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+let results=[];
+function addPerson(){const n=document.createElement('div');n.className='person';n.innerHTML=`<div class="bar"><h3>Person ${$('people').children.length+1}</h3><button type="button">Remove</button></div><div class="grid"><div><label>Estimated regular prescriptions per month ($)<input type="number" data-key="rx" min="0" step="0.01"></label><details><summary>What amount?</summary><p>The monthly price before insurance pays—not just your copay. A pharmacy can estimate this. Exclude Mounjaro here. Include only covered prescriptions that are not free preventive drugs.</p></details></div><div><label>Estimated doctor / medical bills per year ($)<input type="number" data-key="medical" min="0" step="0.01"></label><details><summary>What amount?</summary><p>Use last year’s MESSA claims as a starting point: covered doctor, lab and hospital prices after provider discounts, but before insurance payments. This is not just the amount you personally paid. Adjust for next year if needed. One $150 visit in a year? Enter 150. Free annual checkup only? Enter 0. No monthly visit math needed.</p></details></div></div><label style="flex-direction:row;align-items:center;margin-top:16px"><input type="checkbox" class="mounjaro"> This person takes Mounjaro</label><p class="small">Compare this person’s Mounjaro through insurance versus a $500/month direct purchase. Both routes include the medicine.</p>`;n.querySelector('button').onclick=()=>{if($('people').children.length>1){n.remove();[...$('people').children].forEach((x,i)=>x.querySelector('h3').textContent='Person '+(i+1));recalculate();}};n.querySelector('.mounjaro').onchange=recalculate;n.querySelector('.mounjaro').checked=$('people').children.length===0;$('people').append(n);}
+function calculate(e){e?.preventDefault();$('error').textContent='';const nodes=[...$('people').children],rxPrices=nodes.map(n=>Number(n.querySelector('[data-key=rx]').value));
+const people=nodes.map(n=>({medical:Number(n.querySelector('[data-key=medical]').value)/12,visits:0,visitPrice:0,visitCopay:0,uncovered:0}));
+const flags=nodes.map(n=>n.querySelector('.mounjaro').checked),tier=Number($('regularTier').value);
+results=PlanScenario.six(people,rxPrices,flags,tier);
+$('scenarioLabel').textContent=`${flags.filter(Boolean).length} Mounjaro user(s). Insurance: $1,464.54/month working price, $40/fill once coverage begins. Direct: $500/month, no deductible credit. Regular Rx: ${$('regularTier').selectedOptions[0].textContent}.`;
+$('mounjaroImpact').innerHTML='';
+$('results').hidden=false;const sorted=[...results].sort((a,b)=>a.total-b.total);$('winner').textContent=sorted[1].total-sorted[0].total<0.01?'The two lowest-cost plans are tied in this scenario.':`${sorted[0].name} is lowest in this scenario: ${money(sorted[0].total)} for the year, ${money(sorted[1].total-sorted[0].total)} less than ${sorted[1].name}.`;
+$('summary').innerHTML='<thead><tr><th>Plan / Mounjaro route</th><th>Premiums</th><th>Medical</th><th>Insured prescriptions</th><th>Direct Mounjaro</th><th>TOTAL per year</th></tr></thead><tbody>'+results.map(r=>`<tr><th>${r.name}</th><td>${money(r.premium)}</td><td>${money(r.medical)}</td><td>${money(r.rx)}</td><td>${money(r.excluded)}</td><td><strong>${money(r.total)}</strong></td></tr>`).join('')+'</tbody>';
+document.querySelector('.legend').innerHTML=results.map((r,i)=>`<span><span class="dot" style="background:${colors[i]};${i%2?'opacity:.5':''}"></span>${r.name}</span>`).join('');drawAll();if(e?.type==='submit')$('results').scrollIntoView({behavior:'smooth',block:'start'});}
+const colors=['#1c7565','#1c7565','#8251a4','#8251a4','#c46b16','#c46b16'];
+function draw(id,key){const svg=$(id),w=Math.max(300,svg.clientWidth),h=320,left=74,right=18,top=20,bottom=48,max=Math.max(1,...results.flatMap(r=>r.rows.map(x=>x[key])))*1.12;const x=i=>left+i*(w-left-right)/11,y=v=>h-bottom-v/max*(h-top-bottom);svg.setAttribute('viewBox',`0 0 ${w} ${h}`);let content='<title>'+ (key==='total'?'Monthly cash spending':'Cumulative annual spending')+'</title>';
+ for(let i=0;i<=4;i++){let val=max*i/4,yy=y(val);content+=`<line x1="${left}" y1="${yy}" x2="${w-right}" y2="${yy}" stroke="#dce4e9"/><text x="${left-8}" y="${yy+4}" text-anchor="end" fill="#42566a">$${Math.round(val).toLocaleString()}</text>`;}
+ months.forEach((m,i)=>{if(w<500&&i%3!==0&&i!==11)return;content+=`<text x="${x(i)}" y="${h-23}" text-anchor="middle" fill="#42566a">${m}</text>`;});
+ results.forEach((r,j)=>{content+=`<polyline fill="none" stroke="${colors[j]}" stroke-width="3" ${j%2?'stroke-dasharray="8 4"':''} points="${r.rows.map((v,i)=>`${x(i)},${y(v[key])}`).join(' ')}"/>`;r.rows.forEach((v,i)=>{content+=`<circle cx="${x(i)}" cy="${y(v[key])}" r="4" fill="${colors[j]}"><title>${r.name}, ${months[i]}: ${money(v[key])}</title></circle>`;});});content+='<text x="8" y="14" fill="#42566a">Dollars</text>';svg.innerHTML=content;}
+function drawAll(){if(results.length){draw('monthly','total');draw('cumulative','cumulative');}}
+
+function recalculate(){if($('form').checkValidity())calculate();}
+$('regularTier').onchange=recalculate;$('form').addEventListener('input',e=>{if(e.target.matches('[data-key]'))recalculate();});
+$('addPerson').onclick=()=>{addPerson();recalculate();};$('form').onsubmit=calculate;new ResizeObserver(drawAll).observe($('monthly'));addPerson();addPerson();
+
+</script></html>
