@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>M2 Constructor · CS 461</title>
+<style>
+:root{color-scheme:light;--ink:#172b3c;--muted:#506474;--accent:#096b68;--line:#cedbdc}*{box-sizing:border-box}body{margin:0;background:#f3f6f5;color:var(--ink);font:16px/1.6 system-ui,sans-serif}main{max-width:1200px;margin:auto;padding:40px 24px}header{border-top:5px solid var(--accent);padding-top:22px;margin-bottom:30px}.eyebrow{font-size:12px;font-weight:750;letter-spacing:.15em;color:var(--accent)}h1{font-size:clamp(30px,5vw,46px);letter-spacing:-.04em;line-height:1.15;margin:10px 0}p{margin:10px 0;color:var(--muted)}.grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}.panel{background:white;border:1px solid var(--line);border-radius:12px;padding:24px;min-width:0}h2{font-size:20px;margin:0 0 8px}.caption{font-size:14px;min-height:46px}label{display:block;font-weight:650;margin:15px 0 8px}textarea{display:block;width:100%;height:340px;resize:vertical;background:#f8fafb;border:1px solid #aebfc4;border-radius:7px;padding:16px;font:13px/1.65 ui-monospace,Consolas,monospace;color:var(--ink);white-space:pre;tab-size:2}textarea:focus,button:focus-visible,summary:focus-visible{outline:3px solid #60b9b5;outline-offset:3px}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}button{font:600 14px system-ui;cursor:pointer;border:1px solid var(--line);border-radius:6px;padding:11px 18px;background:white;color:var(--ink)}button.primary{background:var(--accent);border-color:var(--accent);color:white}button:disabled{opacity:.45;cursor:default}#status{min-height:28px;margin:16px 0;font-size:14px}#status.error{color:#a12626}details{background:#e9f0ef;border:1px solid var(--line);padding:18px 22px;border-radius:9px;margin-top:16px}summary{cursor:pointer;font-weight:650}code{font-family:ui-monospace,Consolas,monospace}li{margin:7px 0}.note{font-size:13px;margin-top:24px}@media(max-width:800px){.grid{grid-template-columns:1fr}main{padding:24px 16px}.panel{padding:18px}textarea{height:290px}}
+</style></head><body><main><header><div class="eyebrow">CS 461 / THEORY OF COMPUTATION</div><h1>The M2 constructor</h1><p>Paste an encoding of ⟨M, w⟩. Generate a new Turing machine, M2, as a seven-tuple.</p></header>
+<form id="form"><div class="grid"><section class="panel"><h2>01 · Input</h2><p class="caption">A machine M followed by a comma and its fixed input word w.</p><label for="source">Encoding of ⟨M, w⟩</label><textarea id="source" spellcheck="false" required aria-describedby="help"></textarea><div class="actions"><button class="primary" type="submit">Submit · Generate M2</button><button type="button" id="example">Load example</button></div></section>
+<section class="panel"><h2>02 · Generated machine</h2><p class="caption">M2 checks its own input x for 0ⁿ1ⁿ, then runs M on w if the check fails.</p><label for="output">Encoding of M2</label><textarea id="output" spellcheck="false" readonly placeholder="Your generated seven-tuple will appear here."></textarea><div class="actions"><button type="button" id="copy" disabled>Copy encoding</button><button type="button" id="download" disabled>Download .txt</button></div></section></div></form>
+<div id="status" role="status" aria-live="polite">Ready. Edit the example or paste your own encoding.</div>
+<details id="help"><summary>Input notation and requirements</summary><p>Enter <code>(Q, Σ, Γ, δ, q₀, qaccept, qreject),w</code>. Use braces for sets and parentheses for tuples. Optional outer angle brackets are accepted.</p><ul><li>Write each transition as <code>((state,read),(nextState,write,L))</code> or use <code>R</code>. For example, <code>((q0,1),(q1,1,R))</code> means: in q0 reading 1, write 1, move right, and enter q1.</li><li><code>_</code> means blank, not a space. Γ must contain it. Do not append blank cells or an ellipsis to w.</li><li>Σ contains single digits; w uses only symbols in Σ. Use <code>eps</code>, <code>ε</code>, or nothing after the final comma for the empty word.</li><li>State and tape-symbol names may contain letters, digits, and underscores. Declare a transition for every nonhalting state and tape symbol. Accept and reject states have no outgoing transitions.</li><li>The tape extends to the right. A left move at its first cell stays at that cell.</li></ul></details>
+<details><summary>What does M2 do?</summary><ol><li>Check whether x belongs to {0ⁿ1ⁿ | n ≥ 0}. The empty word qualifies.</li><li>If it does, accept.</li><li>Otherwise, erase x, write the fixed word w, and simulate M. Accept when M accepts; reject when M rejects. If M loops, M2 loops too.</li></ol><p>M2 has input alphabet {0,1}. Its output includes extra states and tape symbols for checking, cleanup, and simulation. The constructor generates transitions; it does not run M on w.</p><p>For the supplied example, M accepts 11011, so the generated M2 accepts every binary input.</p></details><p class="note">Runs entirely in your browser. Save this HTML file or upload it to your website; no server or installation is required.</p></main><script>
+function parse(text){
+ text=text.replace(/<blank>|□|⊔/g,'_');
+ let p=0; const ws=()=>{while(/\s/.test(text[p]||'')&&p<text.length)p++;};
+ function value(){ws();let c=text[p++];if(c==='('||c==='{'){let a=[],end=c==='('?')':'}';ws();if(text[p]===end){p++;return {kind:c,a};}while(true){a.push(value());ws();let d=text[p++];if(d===end)break;if(d!==',')throw Error('Expected comma at position '+p);}return {kind:c,a};}let start=p-1;while(p<text.length&&!/[\s,(){}<>]/.test(text[p]))p++;let s=text.slice(start,p);if(!/^[A-Za-z0-9_]+$/.test(s))throw Error('Invalid token near '+start);return s;}
+ ws();let angle=text[p]==='<';if(angle)p++;let m=value();ws();if(text[p++]!==',')throw Error('Expected comma between M and w');let tail=text.slice(p).trim();if(angle){if(!tail.endsWith('>'))throw Error('Missing closing >');tail=tail.slice(0,-1).trim();}tail=tail.replace(/\s/g,'');if(tail==='eps'||tail==='ε')tail='';if(!/^[0-9]*$/.test(tail))throw Error('w must contain digits only (use eps for the empty word)');
+ const seq=(x,k,n)=>{if(!x||x.kind!==k||(n!==undefined&&x.a.length!==n))throw Error('Expected '+(k==='{'?'set':'tuple')+(n?' of length '+n:''));return x.a;};
+ const set=x=>{let a=seq(x,'{');if(a.some(v=>typeof v!=='string')||new Set(a).size!==a.length)throw Error('Set elements must be distinct names');return a;};
+ let [Q,S,G,D,start,accept,reject]=seq(m,'(',7);Q=set(Q);S=set(S);G=set(G);D=seq(D,'{');
+ if(!Q.length||![start,accept,reject].every(q=>Q.includes(q))||accept===reject)throw Error('Invalid start/accept/reject states');
+ if(!G.includes('_')||S.includes('_')||S.some(s=>!/^\d$/.test(s)||!G.includes(s)))throw Error('Sigma must contain digits; Gamma must include Sigma and _');
+ if([...tail].some(s=>!S.includes(s)))throw Error('Input symbol outside Sigma');
+ let transitions=[],seen=new Set();for(let d of D){let [a,b]=seq(d,'(',2);let [q,r]=seq(a,'(',2),[n,w,dir]=seq(b,'(',3);if(!Q.includes(q)||!Q.includes(n)||!G.includes(r)||!G.includes(w)||!['L','R'].includes(dir)||[accept,reject].includes(q))throw Error('Invalid transition');let key=q+'\0'+r;if(seen.has(key))throw Error('Duplicate transition');seen.add(key);transitions.push([q,r,n,w,dir]);}
+ for(let q of Q)if(q!==accept&&q!==reject)for(let s of G)if(!seen.has(q+'\0'+s))throw Error('Missing transition for ('+q+', '+s+')');
+ return {Q,S,G,start,accept,reject,transitions,w:tail};
+}
+
+function constructM2(source){
+ const m=parse(source),M={...m,Gamma:m.G};
+ const Q=new Set(),Gamma=new Set(['0','1','_']),rules=new Map();
+ const usedNames=new Set([...M.Q,...M.Gamma]);let serial=0;
+ function fresh(prefix){let name;do{name=prefix+serial++;}while(usedNames.has(name));usedNames.add(name);return name;}
+ function state(){const q=fresh('S');Q.add(q);return q;}
+ function symbol(){const a=fresh('T');Gamma.add(a);return a;}
+ function add(q,read,next,write,move){const key=JSON.stringify([q,read]);if(rules.has(key))throw Error('Duplicate '+key);rules.set(key,[q,read,next,write,move]);}
+ const start=state(),accept=state(),reject=state();
+ const scanEnd=state(),returnStart=state(),findZero=state(),findOne=state(),rewindCheck=state(),checkYs=state();
+ const cleanupLeft=state(),eraseRight=state(),returnAfterErase=state();
+ const X=symbol(),Y=symbol(),END=symbol();
+ for(const a of M.Gamma)Gamma.add(a);
+ const baseSymbols=[...Gamma],tagged=new Map();for(const a of baseSymbols)tagged.set(a,symbol());
+ const variants=a=>[a,tagged.get(a)];const isTagged=a=>[...tagged.values()].includes(a);const preserveTag=(read,write)=>isTagged(read)?tagged.get(write):write;
+ add(start,'_',accept,'_','R');
+ for(const a of ['0','1']){add(start,a,scanEnd,tagged.get(a),'R');add(scanEnd,a,scanEnd,a,'R');}
+ add(scanEnd,'_',returnStart,END,'L');
+ for(const a of ['0','1']){add(returnStart,a,returnStart,a,'L');add(returnStart,tagged.get(a),a==='0'?findOne:eraseRight,a==='0'?tagged.get(X):tagged.get('_'),'R');}
+ for(const a of variants(X))add(findZero,a,findZero,a,'R');
+ for(const a of variants('0'))add(findZero,a,findOne,preserveTag(a,X),'R');
+ for(const a of variants(Y))add(findZero,a,checkYs,a,'R');
+ add(findZero,END,accept,END,'R');
+ for(const a of variants('1'))add(findZero,a,cleanupLeft,a,'L');
+ for(const a of ['0',Y])add(findOne,a,findOne,a,'R');
+ add(findOne,'1',rewindCheck,Y,'L');add(findOne,END,cleanupLeft,END,'L');
+ for(const a of ['0','1',X,Y])add(rewindCheck,a,rewindCheck,a,'L');
+ add(rewindCheck,tagged.get(X),findZero,tagged.get(X),'R');
+ add(checkYs,Y,checkYs,Y,'R');add(checkYs,END,accept,END,'R');
+ for(const a of ['0','1'])add(checkYs,a,cleanupLeft,a,'L');
+ for(const a of ['0','1',X,Y,END])add(cleanupLeft,a,cleanupLeft,a,'L');
+ for(const a of baseSymbols)add(cleanupLeft,tagged.get(a),eraseRight,tagged.get('_'),'R');
+ for(const a of ['0','1',X,Y])add(eraseRight,a,eraseRight,'_','R');
+ add(eraseRight,END,returnAfterErase,'_','L');add(returnAfterErase,'_',returnAfterErase,'_','L');
+ const simulatedState=new Map();for(const q of M.Q)simulatedState.set(q,q===M.accept?accept:q===M.reject?reject:state());
+ const simulatedStart=simulatedState.get(M.start),returnToW=state();
+ if(M.w.length===0){const back=state();add(returnAfterErase,tagged.get('_'),back,tagged.get('_'),'R');add(back,'_',simulatedStart,'_','L');}
+ else{let writeState=returnAfterErase;for(let i=0;i<M.w.length;i++){const next=i===M.w.length-1?returnToW:state();add(writeState,i===0?tagged.get('_'):'_',next,i===0?tagged.get(M.w[i]):M.w[i],'R');writeState=next;}
+ add(returnToW,'_',returnToW,'_','L');for(const a of M.Gamma)if(a!=='_')add(returnToW,a,returnToW,a,'L');const back=state();for(const a of M.Gamma){add(returnToW,tagged.get(a),back,tagged.get(a),'R');add(back,a,simulatedStart,a,'L');}}
+ for(const [q,read,next,write,move] of M.transitions){const from=simulatedState.get(q),to=simulatedState.get(next);add(from,read,to,write,move);if(move==='R')add(from,tagged.get(read),to,tagged.get(write),'R');else{const back=state();add(from,tagged.get(read),back,tagged.get(write),'R');for(const a of M.Gamma)add(back,a,to,a,'L');}}
+ for(const q of Q){if(q===accept||q===reject)continue;for(const a of Gamma)if(!rules.has(JSON.stringify([q,a])))add(q,a,reject,a,'R');}
+ const delta=[...rules.values()].map(([q,a,r,b,d])=>` ((${q},${a}),(${r},${b},${d}))`).join(',\n');
+ return `({${[...Q].join(',')}},{0,1},{${[...Gamma].join(',')}},{\n${delta}\n},${start},${accept},${reject})`;
+}
+
+const example='({q0,q1,qa,qr},{0,1},{0,1,_},{\n ((q0,0),(q0,0,R)), ((q0,1),(q1,1,R)), ((q0,_),(qr,_,R)),\n ((q1,0),(q0,0,R)), ((q1,1),(q1,1,R)), ((q1,_),(qa,_,R))\n},q0,qa,qr),11011';
+
+const $=id=>document.getElementById(id);
+$('source').value=example;
+function clearOutput(){ $('output').value=''; $('copy').disabled=$('download').disabled=true; }
+function status(message,error=false){$('status').textContent=message;$('status').className=error?'error':'';}
+$('source').addEventListener('input',()=>{clearOutput();status('Input changed. Submit to generate M2.');});
+$('example').onclick=()=>{$('source').value=example;clearOutput();status('Example loaded. Submit to generate M2.');};
+$('form').onsubmit=event=>{event.preventDefault();clearOutput();try{const t=performance.now();const result=constructM2($('source').value);const elapsed=performance.now()-t;const m=parse(result+',eps');$('output').value=result;$('copy').disabled=$('download').disabled=false;status(`Generated ${m.Q.length} states and ${m.transitions.length} transitions in ${elapsed.toFixed(1)} ms.`);}catch(e){status('Could not generate M2: '+e.message,true);}};
+$('copy').onclick=async()=>{try{await navigator.clipboard.writeText($('output').value);status('Encoding copied.');}catch(e){$('output').focus();$('output').select();status('Encoding selected. Press Ctrl+C (or Command+C) to copy.');}};
+$('download').onclick=()=>{const url=URL.createObjectURL(new Blob([$ ('output').value+'\n'],{type:'text/plain;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='M2_encoding.txt';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);};
+</script></body></html>
